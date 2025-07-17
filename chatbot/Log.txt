@@ -1,0 +1,12 @@
+2025-06-17 20:42:00 - User: Hi
+
+2025-06-17 20:42:01 - Chatbot: Hello! Let's start our session by assessing your prior knowledge on cybersecurity. What do you already know or think about cybersecurity?
+
+2025-06-17 20:46:50 - User: morning
+
+2025-06-17 20:46:51 - Chatbot: Good morning! Let's start by discussing a fundamental concept in cybersecurity. What do you already know or think about the importance of cybersecurity in today's digital world?
+
+2025-06-17 20:55:52 - User: evening
+
+2025-06-17 20:55:52 - Chatbot: Good evening! Let's start our session on cybersecurity topics. What do you already know or think about cybersecurity?
+

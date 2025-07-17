@@ -1,27 +1,67 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from openai import OpenAI
 import os
 from datetime import datetime
+from .models import User
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def read_prompt():
-    print("Current working directory:", os.getcwd())
-    with open('./Prompt.txt', 'r') as file:
+    with open('./prompt/Prompt3.txt', 'r') as file:
         return file.read().strip()
 
-def chat_view(request):
-    return render(request, 'chatbot/chat.html')
+def count_tokens(text):
+    """Count tokens based on character count: 1 token = 4 characters"""
+    # Count total characters in the text
+    char_count = len(text)
+    # Calculate tokens: 1 token = 4 characters
+    tokens = char_count / 4
+    # Round up to the nearest whole token
+    return int(tokens) + (1 if tokens % 1 > 0 else 0)
+
+def log_token_request(username, message, token_count):
+    """Log token request to token log file and update user's token count in database"""
+    # Update user's token count in database
+    try:
+        user = User.objects.get(username=username)
+        user.tokens += token_count
+        user.save()
+    except User.DoesNotExist:
+        pass  # Skip if user not found
+    
+    # Log to token log file
+    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'log')
+    os.makedirs(logs_dir, exist_ok=True)
+    token_log_path = os.path.join(logs_dir, 'token_log.txt')
+    
+    with open(token_log_path, 'a', encoding='utf-8') as f:
+        now = datetime.now()
+        formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+        # Truncate message if too long for logging
+        truncated_message = message[:100] + "..." if len(message) > 100 else message
+        f.write(f"{formatted_now} - User {username} sent message: '{truncated_message}' (Token count: {token_count})\n")
+
+
+
+
 
 @csrf_exempt
 def chat_api(request):
-    def log_message(sender, message):
-        log_path = os.path.join(os.path.dirname(__file__), 'Log.txt')
-        with open('./Log.txt', 'a', encoding='utf-8') as f:
+    def log_message(sender, message, username):
+        # Sanitize username to be a valid filename
+        safe_username = "".join([c for c in username if c.isalnum() or c in ('.', '_', '-')]).strip()
+        if not safe_username: # Fallback if username becomes empty after sanitization
+            safe_username = "invalid_username"
+            
+        log_file_name = f"{safe_username}.txt"
+        # Create logs directory if it doesn't exist
+        logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'chat_history')
+        os.makedirs(logs_dir, exist_ok=True)
+        log_path = os.path.join(logs_dir, log_file_name)
+        with open(log_path, 'a', encoding='utf-8') as f:
             now = datetime.now()
             formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
             f.write(f"{formatted_now} - {sender}: {message}\n\n")
@@ -30,11 +70,16 @@ def chat_api(request):
         try:
             data = json.loads(request.body)
             messages = data.get('messages', [])
+            username = data.get('username', 'unknown_user')  # Get username from request
             
-            # Log user message(s)
+            # Log user message(s) and count tokens
             for msg in messages:
                 if msg.get('role') == 'user':
-                    log_message('User', msg.get('content', ''))
+                    content = msg.get('content', '')
+                    log_message('User', content, username)
+                    # Count tokens and log token request
+                    token_count = count_tokens(content)
+                    log_token_request(username, content, token_count)
 
             # Ensure there's a system message
             if not any(msg.get('role') == 'system' for msg in messages):
@@ -51,13 +96,94 @@ def chat_api(request):
 
             chatbot_reply = response.choices[0].message.content
             # Log chatbot response
-            log_message('Chatbot', chatbot_reply)
+            log_message('Chatbot', chatbot_reply, username)
             return JsonResponse({
                 'message': chatbot_reply,
                 'role': 'assistant'
             })
         except Exception as e:
-            print("Error in chat_api:", str(e))  # Add logging
             return JsonResponse({'error': str(e)}, status=500)
     
     return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+@csrf_exempt
+def authenticate_user(request):
+    if request.method == 'POST':
+        try:
+            # Check if request has content
+            if not request.body:
+                return JsonResponse({'error': 'Request body is empty'}, status=400)
+            
+            # Parse JSON
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError as e:
+                return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            
+            username = data.get('username', '')
+            password = data.get('password', '')
+            
+            if not username or not password:
+                return JsonResponse({'error': 'Username and password are required'}, status=400)
+            
+            # Check if user exists in database
+            try:
+                user = User.objects.get(username=username)
+                
+                # Check if password matches
+                if user.password == password:
+                    # Log successful login to login log file
+                    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'log')
+                    os.makedirs(logs_dir, exist_ok=True)
+                    login_log_path = os.path.join(logs_dir, 'login_log.txt')
+
+                    with open(login_log_path, 'a', encoding='utf-8') as f:
+                        now = datetime.now()
+                        formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+                        f.write(f"{formatted_now} - User {username} logged in successfully.\n")
+                    
+                    return JsonResponse({'status': 'success', 'message': 'Login successful'})
+                else:
+                    return JsonResponse({'error': 'Invalid credentials!'}, status=401)
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Invalid credentials!'}, status=401)
+                
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+
+
+@csrf_exempt
+def get_token_count(request):
+    """Endpoint to get a user's token count"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            
+            if not username:
+                return JsonResponse({'error': 'Username is required'}, status=400)
+            
+            try:
+                user = User.objects.get(username=username)
+                return JsonResponse({
+                    'username': username,
+                    'tokens': user.tokens
+                })
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'User not found'}, status=404)
+                
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+def test_view(request):
+    """Simple test endpoint to verify the server is running"""
+    return JsonResponse({
+        'status': 'success',
+        'message': 'Server is running!',
+        'timestamp': datetime.now().isoformat()
+    })

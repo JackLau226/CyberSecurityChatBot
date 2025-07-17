@@ -1,24 +1,46 @@
 import React, { useState } from 'react';
+import { API_ENDPOINTS } from '../config';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const checkCredentials = (username, password) => {
-    // Hardcoded check for now
-    //return username === 'example@email.com' && password === 'Password';
-    return true;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (checkCredentials(username, password)) {
-      setError('');
-      onLogin();
-    } else {
-      setError('Invalid username or password');
+    if (!username.trim() || !password.trim()) {
+      setError('Please enter both username and password');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+                try {
+        const response = await fetch(API_ENDPOINTS.AUTH_LOGIN, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+      if (response.ok) {
+        // Login successful
+        onLogin(username);
+      } else {
+        // Login failed
+        setError(data.error || 'Invalid credentials!');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -41,7 +63,9 @@ const Login = ({ onLogin }) => {
           className="login-input"
         />
         {error && <div className="login-error">{error}</div>}
-        <button type="submit" className="login-btn">Login</button>
+        <button type="submit" className="login-btn" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

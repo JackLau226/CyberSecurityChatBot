@@ -2,31 +2,31 @@ import React, { useState } from 'react';
 import Banner from './Banner';
 import ChatWindow from './ChatWindow';
 import ChatInput from './ChatInput';
+import { API_ENDPOINTS } from '../config';
 import './Chat.css';
 
-const Chat = () => {
+const Chat = ({ username }) => {
   const [messages, setMessages] = useState([]);
 
   const handleSendMessage = async (content) => {
-    // Add user message to UI with type for display
-    setMessages(prev => [...prev, { type: 'user', content }]);
-
     try {
-      // Convert messages to the format expected by the API
+      // Prepare messages for API (do NOT include the new user message yet)
       const apiMessages = messages.map(msg => ({
         role: msg.type === 'user' ? 'user' : 'assistant',
         content: msg.content
       }));
-
-      // Add the new message
+      // Add the new user message to the API payload
       apiMessages.push({ role: 'user', content });
 
-      const response = await fetch('/chat/api/', {
+      const response = await fetch(API_ENDPOINTS.CHAT_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ 
+          messages: apiMessages,
+          username: username 
+        }),
       });
 
       if (!response.ok) {
@@ -34,13 +34,18 @@ const Chat = () => {
       }
 
       const data = await response.json();
-      setMessages(prev => [...prev, { type: 'assistant', content: data.message }]);
+      // Only now add both user and assistant messages to UI state
+      setMessages(prev => [
+        ...prev,
+        { type: 'user', content },
+        { type: 'assistant', content: data.message }
+      ]);
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, { 
-        type: 'assistant', 
-        content: 'Sorry, I encountered an error. Please try again.' 
-      }]);
+      setMessages(prev => [
+        ...prev,
+        { type: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
+      ]);
     }
   };
 

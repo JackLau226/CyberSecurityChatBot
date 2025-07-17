@@ -1,0 +1,13 @@
+2025-07-07 09:13:36 - User: Morning?
+
+2025-07-07 09:13:37 - Chatbot: Good morning! Let's dive into firewalls in cybersecurity. Imagine you're setting up a network and a firewall blocks some traffic. What do you think the firewall is doing?
+
+2025-07-07 10:11:16 - User: Hello, what is cybersecurity?
+
+2025-07-07 10:11:17 - Chatbot: Step 1: Present an Interactive Scenario
+Imagine you're setting up a network and a firewall blocks some traffic. What do you think the firewall is doing?
+
+2025-07-07 10:35:30 - User: Hi!
+
+2025-07-07 10:35:31 - Chatbot: Hello! Let's dive into firewalls in cybersecurity. Imagine you're setting up a network, and a firewall blocks some traffic. What do you think the firewall is doing?
+

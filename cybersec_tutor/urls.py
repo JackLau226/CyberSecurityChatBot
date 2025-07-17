@@ -20,6 +20,10 @@ from chatbot import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.chat_view, name='chat'),
+
     path('chat/api/', views.chat_api, name='chat_api'),
+
+    path('auth/login/', views.authenticate_user, name='authenticate_user'),
+    path('user/tokens/', views.get_token_count, name='get_token_count'),
+    path('test/', views.test_view, name='test'),
 ]
