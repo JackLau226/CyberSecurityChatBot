@@ -9,11 +9,11 @@ import os
 import sys
 import django
 
-# Add the project directory to Python path
+# Add project directory to Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cybersec_tutor.settings')
+# Setup Django 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from chatbot.models import User
@@ -39,7 +39,7 @@ def add_users():
             if not user_input:
                 continue
                 
-            # Split by tab character
+            # Test tab character
             parts = user_input.split('\t')
             if len(parts) != 2:
                 print("Error: Invalid format. Use: username\\tpassword")
@@ -72,7 +72,7 @@ def add_users():
     
     for username, password in users_to_add:
         try:
-            # Check if user already exists
+            # Check user exists
             if User.objects.filter(username=username).exists():
                 print(f"Error: User '{username}' already exists")
                 error_count += 1

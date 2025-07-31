@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import './ChatInput.css';
 
-const ChatInput = ({ onSendMessage }) => {
+const ChatInput = ({ onSendMessage, isDisabled = false }) => {
   const [message, setMessage] = useState('');
-  const [isDisabled, setIsDisabled] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim() && !isDisabled) {
-      setIsDisabled(true);
       onSendMessage(message);
       setMessage('');
-      setIsDisabled(false);
     }
   };
 
@@ -26,7 +23,7 @@ const ChatInput = ({ onSendMessage }) => {
           disabled={isDisabled}
         />
         <button type="submit" disabled={isDisabled}>
-          Send
+          {isDisabled ? 'Sending...' : 'Send'}
         </button>
       </form>
     </div>

@@ -9,11 +9,11 @@ import django
 import shutil
 from datetime import datetime
 
-# Add the project directory to Python path
+# Add project directory to Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cybersec_tutor.settings')
+# Setup Django 
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from chatbot.models import User
@@ -30,7 +30,7 @@ def backup_and_wipe_db():
             print(f"Error: Database file '{db_path}' not found")
             return
         
-        # Create backup filename with timestamp
+        # Create backup filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_filename = f'db_backup_{timestamp}.sqlite3'
         
@@ -44,7 +44,7 @@ def backup_and_wipe_db():
             print(f"Error creating backup: {e}")
             return
         
-        # Ask user if they want to wipe the database
+        # Ask if want to wipe
         print("\nBackup completed successfully.")
         response = input("Do you want to wipe the database clean? (yes/no): ").strip().lower()
         

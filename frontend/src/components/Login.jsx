@@ -30,10 +30,8 @@ const Login = ({ onLogin }) => {
         const data = await response.json();
 
       if (response.ok) {
-        // Login successful
         onLogin(username);
       } else {
-        // Login failed
         setError(data.error || 'Invalid credentials!');
       }
     } catch (error) {

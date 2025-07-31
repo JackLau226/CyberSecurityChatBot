@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Test script for the new logging system
+Test script for the logging system
 """
 
 import os
@@ -9,23 +9,21 @@ import django
 import re
 from datetime import datetime
 
-# Add the project root directory to the Python path
+# Add root directory to Python path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
 # Set up Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cybersec_tutor.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from chatbot.models import User
 
 def count_tokens(text):
+    # Count total characters in the text, then div by 4, round up
     """Count tokens based on character count: 1 token = 4 characters - copied from views.py"""
-    # Count total characters in the text
     char_count = len(text)
-    # Calculate tokens: 1 token = 4 characters
     tokens = char_count / 4
-    # Round up to the nearest whole token
     return int(tokens) + (1 if tokens % 1 > 0 else 0)
 
 def log_token_request(username, message, token_count):
@@ -36,7 +34,7 @@ def log_token_request(username, message, token_count):
         user.tokens += token_count
         user.save()
     except User.DoesNotExist:
-        pass  # Skip if user not found
+        pass  
     
     # Log to token log file
     logs_dir = os.path.join(PROJECT_ROOT, 'log')
@@ -46,7 +44,7 @@ def log_token_request(username, message, token_count):
     with open(token_log_path, 'a', encoding='utf-8') as f:
         now = datetime.now()
         formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-        # Truncate message if too long for logging
+        # Shorten message if too long
         truncated_message = message[:100] + "..." if len(message) > 100 else message
         f.write(f"{formatted_now} - User {username} sent message: '{truncated_message}' (Token count: {token_count})\n")
 
@@ -55,7 +53,7 @@ def test_logging():
     
     print("=== TESTING NEW LOGGING SYSTEM ===")
     
-    # Test 1: Token counting
+    # Token counting
     print("\n1. Testing token counting:")
     test_messages = [
         "Hello, how are you?",
@@ -72,7 +70,7 @@ def test_logging():
         print(f"   Token count: {token_count}")
         print()
     
-    # Test 2: Token logging
+    # Token logging
     print("2. Testing token logging:")
     test_username = "test_user"
     test_message = "This is a test message for token logging."
@@ -85,7 +83,7 @@ def test_logging():
     log_token_request(test_username, test_message, token_count)
     print("   ✓ Token request logged successfully")
     
-    # Test 3: Check log files
+    # Check log files
     print("\n3. Checking log files:")
     log_dir = os.path.join(PROJECT_ROOT, 'log')
     

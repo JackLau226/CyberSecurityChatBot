@@ -7,12 +7,12 @@ import os
 import sys
 import django
 
-# Add the project root directory to the Python path
+# Add root directory to Python path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
 # Set up Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cybersec_tutor.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from chatbot.models import User
@@ -23,12 +23,12 @@ def test_database():
     print("=== DATABASE TEST ===")
     
     try:
-        # Test 1: Check if we can query the database
+        # Check if can query database
         print("1. Testing database connection...")
         user_count = User.objects.count()
         print(f"   ✓ Database connected. Total users: {user_count}")
         
-        # Test 2: List all users
+        # List all users
         print("\n2. Listing all users:")
         users = User.objects.all()
         if users:
@@ -37,7 +37,7 @@ def test_database():
         else:
             print("   No users found in database")
         
-        # Test 3: Try to find a specific user
+        # Try finding specific user
         print("\n3. Testing user lookup...")
         try:
             admin_user = User.objects.get(username='admin')
@@ -46,7 +46,7 @@ def test_database():
         except User.DoesNotExist:
             print("   ✗ User 'admin' not found")
         
-        # Test 4: Test password comparison
+        # Test password comparison
         print("\n4. Testing password comparison...")
         try:
             admin_user = User.objects.get(username='admin')

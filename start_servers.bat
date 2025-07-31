@@ -1,23 +1,23 @@
 @echo off
 echo Starting CyberSecurity Tutor AI servers...
 
-:: Wait for 5 seconds to ensure choice
+:: Wait 5 seconds
 timeout /t 5 /nobreak
 echo.
 echo Servers are starting...
 echo.
 echo Starting Django backend server... 
 
-:: Start Django backend server
+:: Start Django
 start cmd /k "echo Starting Django backend server... && venv\Scripts\activate && python manage.py runserver"
 
-:: Wait for 5 seconds to ensure backend starts first
+:: Wait 5 seconds
 timeout /t 5 /nobreak
 echo.
 echo Starting React frontend...
 echo.
 
-:: Start React frontend
+:: Start React 
 start cmd /k "echo Starting React frontend... && cd frontend && npm run dev"
 
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
 Debug script to test API endpoints and see JSON responses
-Run this script to test the authentication and chat APIs
 """
 
 import requests
@@ -136,10 +135,8 @@ if __name__ == "__main__":
     
     # Check if server is running
     if check_server_status():
-        # Test authentication
         test_authentication()
         
-        # Test chat API
         test_chat_api()
     else:
         print("\nPlease start the Django server first:")

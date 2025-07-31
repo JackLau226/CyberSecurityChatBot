@@ -7,15 +7,24 @@ import './Chat.css';
 
 const Chat = ({ username }) => {
   const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = async (content) => {
     try {
-      // Prepare messages for API (do NOT include the new user message yet)
+      setIsLoading(true);
+      
+      // Immediately add user message to UI
+      setMessages(prev => [
+        ...prev,
+        { type: 'user', content }
+      ]);
+
+      // Prepare messages for API (include the new user message)
       const apiMessages = messages.map(msg => ({
         role: msg.type === 'user' ? 'user' : 'assistant',
         content: msg.content
       }));
-      // Add the new user message to the API payload
+      // Add new user message to payload
       apiMessages.push({ role: 'user', content });
 
       const response = await fetch(API_ENDPOINTS.CHAT_API, {
@@ -34,10 +43,9 @@ const Chat = ({ username }) => {
       }
 
       const data = await response.json();
-      // Only now add both user and assistant messages to UI state
+      // Add only assistant message to UI state (user message already added)
       setMessages(prev => [
         ...prev,
-        { type: 'user', content },
         { type: 'assistant', content: data.message }
       ]);
     } catch (error) {
@@ -46,6 +54,8 @@ const Chat = ({ username }) => {
         ...prev,
         { type: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,7 +63,7 @@ const Chat = ({ username }) => {
     <div className="chat-container">
       <Banner />
       <ChatWindow messages={messages} />
-      <ChatInput onSendMessage={handleSendMessage} />
+      <ChatInput onSendMessage={handleSendMessage} isDisabled={isLoading} />
     </div>
   );
 };

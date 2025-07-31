@@ -3,15 +3,22 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv('keys.env')
+load_dotenv('../keys.env')
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+
+file = client.files.create(
+    file=open("./LectureNotes.pdf", "rb"),
+    purpose="user_data"
+)
+
+
 # Test message
 test_input = "How would I declare a variable for a last name?"
 
-# Create the messages array
+# Create messages
 messages = [
     {
         "role": "system",
@@ -19,7 +26,18 @@ messages = [
     },
     {
         "role": "user",
-        "content": test_input
+        "content": [
+                {
+                    "type": "file",
+                    "file": {
+                        "file_id": file.id,
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": test_input,
+                },
+            ]
     }
 ]
 
@@ -28,7 +46,7 @@ try:
     print("Using API key:", os.getenv('OPENAI_API_KEY')[:6] + "..." if os.getenv('OPENAI_API_KEY') else "No API key found!")
     
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",
         messages=messages
     )
     

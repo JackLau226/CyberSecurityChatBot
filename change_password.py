@@ -12,7 +12,7 @@ import getpass
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Setup Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cybersec_tutor.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
 from chatbot.models import User

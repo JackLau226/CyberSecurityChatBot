@@ -9,8 +9,31 @@ from .models import User
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
+# Global variable to store the uploaded file ID
+uploaded_file_id = None
+
+def upload_pdf_file():
+    """Upload the PDF file to OpenAI and return the file ID"""
+    global uploaded_file_id
+    
+    # If file is already uploaded, return the existing ID
+    if uploaded_file_id:
+        return uploaded_file_id
+    
+    try:
+        # Upload the PDF file
+        file = client.files.create(
+            file=open("./PDF/LectureNotes.pdf", "rb"),
+            purpose="user_data"
+        )
+        uploaded_file_id = file.id
+        return uploaded_file_id
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return None
+
 def read_prompt():
-    with open('./prompt/Prompt3.txt', 'r') as file:
+    with open('./prompt/Prompt1.txt', 'r') as file:
         return file.read().strip()
 
 def count_tokens(text):
@@ -30,7 +53,7 @@ def log_token_request(username, message, token_count):
         user.tokens += token_count
         user.save()
     except User.DoesNotExist:
-        pass  # Skip if user not found
+        pass 
     
     # Log to token log file
     logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'log')
@@ -40,7 +63,7 @@ def log_token_request(username, message, token_count):
     with open(token_log_path, 'a', encoding='utf-8') as f:
         now = datetime.now()
         formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-        # Truncate message if too long for logging
+        # Shorten message if too long
         truncated_message = message[:100] + "..." if len(message) > 100 else message
         f.write(f"{formatted_now} - User {username} sent message: '{truncated_message}' (Token count: {token_count})\n")
 
@@ -51,13 +74,12 @@ def log_token_request(username, message, token_count):
 @csrf_exempt
 def chat_api(request):
     def log_message(sender, message, username):
-        # Sanitize username to be a valid filename
+        # Sanitize username
         safe_username = "".join([c for c in username if c.isalnum() or c in ('.', '_', '-')]).strip()
-        if not safe_username: # Fallback if username becomes empty after sanitization
+        if not safe_username: 
             safe_username = "invalid_username"
             
         log_file_name = f"{safe_username}.txt"
-        # Create logs directory if it doesn't exist
         logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'chat_history')
         os.makedirs(logs_dir, exist_ok=True)
         log_path = os.path.join(logs_dir, log_file_name)
@@ -68,9 +90,10 @@ def chat_api(request):
 
     if request.method == 'POST':
         try:
+            # Get username from request
             data = json.loads(request.body)
             messages = data.get('messages', [])
-            username = data.get('username', 'unknown_user')  # Get username from request
+            username = data.get('username', 'unknown_user')  
             
             # Log user message(s) and count tokens
             for msg in messages:
@@ -81,16 +104,35 @@ def chat_api(request):
                     token_count = count_tokens(content)
                     log_token_request(username, content, token_count)
 
-            # Ensure there's a system message
+            # Make sure there's a system message
             if not any(msg.get('role') == 'system' for msg in messages):
-                system_prompt = read_prompt()  # Read prompt from the file
+                system_prompt = read_prompt() 
                 messages.insert(0, {
                     'role': 'system',
                     'content': system_prompt
                 })
 
+            # Upload PDF file and get file ID
+            file_id = upload_pdf_file()
+            
+            # Modify the last user message to include the file
+            if messages and messages[-1].get('role') == 'user':
+                original_content = messages[-1]['content']
+                messages[-1]['content'] = [
+                    {
+                        "type": "file",
+                        "file": {
+                            "file_id": file_id,
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": original_content,
+                    },
+                ]
+
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=messages
             )
 
@@ -110,7 +152,7 @@ def chat_api(request):
 def authenticate_user(request):
     if request.method == 'POST':
         try:
-            # Check if request has content
+            # Check if has content
             if not request.body:
                 return JsonResponse({'error': 'Request body is empty'}, status=400)
             
@@ -126,13 +168,13 @@ def authenticate_user(request):
             if not username or not password:
                 return JsonResponse({'error': 'Username and password are required'}, status=400)
             
-            # Check if user exists in database
+            # Check if user exists
             try:
                 user = User.objects.get(username=username)
                 
                 # Check if password matches
                 if user.password == password:
-                    # Log successful login to login log file
+                    # Logging
                     logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'log')
                     os.makedirs(logs_dir, exist_ok=True)
                     login_log_path = os.path.join(logs_dir, 'login_log.txt')
