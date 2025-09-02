@@ -12,7 +12,7 @@ An AI-powered virtual teaching assistant for cybersecurity education using scaff
   SECRET_KEY=random_secret_key_here
   ```
 
-### 2. Install Dependencies
+### 2.1 Install Backend Dependencies
 ```bash
 # Create the venv environment
 python -m venv venv
@@ -23,6 +23,12 @@ venv\Scripts\activate
 # Then inside the venv environment install the dependencies
 pip install -r requirements.txt
 
+#Exit the venv after finishing
+deactivate
+```
+
+### 2.2 Install npm server
+```bash
 # Exit venv and install frontend dependencies
 cd frontend
 npm install
