@@ -14,12 +14,16 @@ An AI-powered virtual teaching assistant for cybersecurity education using scaff
 
 ### 2. Install Dependencies
 ```bash
-# Python dependencies
+# Create the venv environment
 python -m venv venv
+
+# Enter the venv environment
 venv\Scripts\activate
+
+# Then inside the venv environment install the dependencies
 pip install -r requirements.txt
 
-# Frontend dependencies
+# Exit venv and install frontend dependencies
 cd frontend
 npm install
 cd ..
@@ -29,7 +33,7 @@ cd ..
 ```bash
 python add_users.py
 ```
-Enter students in format: `student_id\tpassword`
+Enter students in format: `student_id    password`, with a tab between the two variables
 
 ### 4. Start Application
 Double-click `start_servers.bat` or run:
