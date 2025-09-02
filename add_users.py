@@ -20,11 +20,11 @@ from chatbot.models import User
 
 def add_users():
     print("=== User Addition Script ===")
-    print("Enter users in format: username\\tpassword")
+    print("Enter users in format: username    password, with a tab between them")
     print("Enter '*' to stop and create all users")
     print("Example:")
-    print("k24100001\\tQi9UpsI!")
-    print("k24100002\\tQuBQd5B&")
+    print("k24100001    Qi9UpsI!")
+    print("k24100002    QuBQd5B&")
     print("-" * 40)
     
     users_to_add = []
