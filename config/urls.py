@@ -19,6 +19,7 @@ from django.urls import path
 from chatbot import views
 
 urlpatterns = [
+    path('', views.test_view, name='home'), 
     path('admin/', admin.site.urls),
 
     path('chat/api/', views.chat_api, name='chat_api'),
