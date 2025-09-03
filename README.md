@@ -2,7 +2,7 @@
 
 An AI-powered virtual teaching assistant for cybersecurity education using scaffolding techniques.
 
-## Quick Start
+## Quick Start (Windows)
 
 ### 1. Setup
 - Install Python 3.8+ and Node.js 14+
@@ -50,6 +50,31 @@ start_servers.bat
 ### 5. Access
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
+
+## Mac Users
+The app is developed in Windows environment, and planned to deployed in Windows or Linux servers. Here is an **untested** start guide for MacOS.
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Make startup script executable
+chmod +x start_servers.sh
+
+# Start all servers
+./start_servers.sh
+```
+
 
 ## Features
 
