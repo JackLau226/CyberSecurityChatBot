@@ -48,8 +48,8 @@ start_servers.bat
 ```
 
 ### 5. Access
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
+- You can access the application from frontend at: http://localhost:5173
+- You can also check if the backend is running at: http://localhost:8000
 
 ## Mac Users
 The app is developed in Windows environment, and planned to deployed in Windows or Linux servers. Here is an **untested** start guide for MacOS.
