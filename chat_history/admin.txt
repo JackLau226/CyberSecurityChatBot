@@ -1788,3 +1788,17 @@ TCP is connection-oriented, ensuring reliable data delivery, while UDP is connec
 
 Can you explain why you think TCP might be important for some applications, while UDP might be preferred for others?
 
+2025-09-04 21:15:44 - User: Hi
+
+2025-09-04 21:16:30 - User: hi
+
+2025-09-04 21:16:35 - Chatbot: Hello! How can I assist you today? Are there any specific topics in cybersecurity or related fields that you'd like to discuss?
+
+2025-09-04 21:20:35 - User: hi
+
+2025-09-04 21:20:41 - Chatbot: Hello! How can I assist you today? Are there any specific cybersecurity topics you're interested in discussing?
+
+2025-09-04 21:24:53 - User: Hi
+
+2025-09-04 21:24:58 - Chatbot: Hello! How can I assist you today? Do you have any specific topics in cybersecurity you'd like to explore?
+

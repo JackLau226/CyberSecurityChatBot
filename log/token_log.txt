@@ -2,3 +2,7 @@
 2025-07-07 10:11:16 - User admin sent message: 'Hello, what is cybersecurity?' (Token count: 4)
 2025-07-07 10:15:37 - User test_user sent message: 'This is a test message for token logging.' (Token count: 8)
 2025-07-07 10:35:30 - User admin sent message: 'Hi!' (Token count: 1)
+2025-09-04 21:15:44 - User admin sent message: 'Hi' (Token count: 1)
+2025-09-04 21:16:30 - User admin sent message: 'hi' (Token count: 1)
+2025-09-04 21:20:35 - User admin sent message: 'hi' (Token count: 1)
+2025-09-04 21:24:53 - User admin sent message: 'Hi' (Token count: 1)
